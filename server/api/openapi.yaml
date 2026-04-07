@@ -1,0 +1,68 @@
+openapi: 3.0.3
+info:
+  title: Orbital Copilot Usage API
+  version: 1.0.0
+  description: |
+    Returns usage data for the current billing period. Each item represents
+    a single message and the number of credits it consumed.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+paths:
+  /usage:
+    get:
+      summary: Get usage for the current billing period
+      operationId: getUsage
+      responses:
+        "200":
+          description: Usage data successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UsageResponse"
+        "502":
+          description: Upstream messages service failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    UsageResponse:
+      type: object
+      required: [usage]
+      properties:
+        usage:
+          type: array
+          items:
+            $ref: "#/components/schemas/UsageItem"
+    UsageItem:
+      type: object
+      required: [message_id, timestamp, credits]
+      properties:
+        message_id:
+          type: integer
+          format: int64
+          description: ID of the message
+          example: 1000
+        timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of the message
+          example: "2024-04-29T02:08:29.375Z"
+        report_name:
+          type: string
+          description: Name of the report, present only when the message generated one
+          example: "Tenant Obligations Report"
+        credits:
+          type: number
+          format: double
+          description: Credits consumed by this message
+          example: 79
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+

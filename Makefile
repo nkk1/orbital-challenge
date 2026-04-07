@@ -68,6 +68,12 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 test: fmt vet setup-envtest ## Run tests.
 	KUBEBUILDER_ASSETS="$(shell "$(ENVTEST)" use $(ENVTEST_K8S_VERSION) --bin-dir "$(LOCALBIN)" -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
+.PHONY: run
+run: build ## Build first 
+	bin/orbital-service
+
+##@ Build
+
 .PHONY: oapi-gen
 oapi-gen: oapi
 	$(OAPI_CODEGEN) --config server/api/openapi-codegen.yaml ./server/api/openapi.yaml
@@ -75,7 +81,11 @@ oapi-gen: oapi
 
 .PHONY: build
 build: fmt vet ## Build manager binary.
-	go build -o bin/server cmd/main.go
+	go build -o bin/orbital-service main.go
+
+.PHONY: docker-build
+docker-build: ## Build docker image with the manager.
+	$(CONTAINER_TOOL) build -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: docker-build kind ## Push docker image to kind	
