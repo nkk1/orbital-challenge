@@ -13,9 +13,10 @@ orbital challenge
 make run
 ```
 * run smoke tests (not mocked but actual data, so may fail if data changes)
+  * NOTE: It will start the service and run the tests
 
 ```
-go test -tags smoke -v ./server/api/...
+make smoke
 ```
 
 ## Test
