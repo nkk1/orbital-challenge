@@ -26,7 +26,6 @@ func main() {
 	apiServer := api.NewServer(svc)
 
 	mux := http.NewServeMux()
-	// HandlerFromMux registers all paths from the spec onto the given mux.
 	api.HandlerFromMux(apiServer, mux)
 
 	srv := &http.Server{
