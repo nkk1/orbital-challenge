@@ -1,16 +1,16 @@
 # orbital-challenge
 orbital challenge
 
-# Assumptions
+## Assumptions
 * Considering only characters (also \ and '), not considering letters and other characters for credit consumption
 * 0.05 for each character, includes space, numbers, special-chars
 
-# Usage
+## Usage
 
 * run the service locally
 
 ```
-make run 
+make run
 ```
 * run smoke tests (not mocked but actual data, so may fail if data changes)
 
@@ -18,9 +18,9 @@ make run
 go test -tags smoke -v ./server/api/...
 ```
 
-# Test
+## Test
 
-* test 
+* test
 ```
 curl -s http://localhost:8080/usage | jq .
 ```
@@ -47,7 +47,7 @@ curl -s http://localhost:8080/usage | jq '
   }'
 ```
 
-# TODO
+## TODO
 
-* Run in a Kind environment 
+* Run in a Kind environment
 * Add tracing
