@@ -65,13 +65,17 @@ lint-config: golangci-lint ## Verify golangci-lint linter configuration
 	"$(GOLANGCI_LINT)" config verify
 
 .PHONY: test
-test: fmt vet setup-envtest ## Run tests.
-	KUBEBUILDER_ASSETS="$(shell "$(ENVTEST)" use $(ENVTEST_K8S_VERSION) --bin-dir "$(LOCALBIN)" -p path)" go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
+test: fmt vet ## Run tests.
+	go test $$(go list ./... | grep -v /e2e) -coverprofile cover.out
 
 .PHONY: run
 run: build ## Build first 
 	bin/orbital-service
 
+.PHONY: smoke
+smoke:
+	go test -tags smoke -v ./server/api/...
+	
 ##@ Build
 
 .PHONY: oapi-gen
