@@ -5,12 +5,13 @@ import (
 	"unicode"
 )
 
-// CalculateTextCredits computes credits for a message based on its text content,
-// per the rules in the task spec.
+// CalculateTextCredits computes credits
 func CalculateTextCredits(text string) float64 {
 	credits := 1.0
 
 	runes := []rune(text)
+
+	// 0.05 for each character, includes space, numbers, special-chars
 	credits += 0.05 * float64(len(runes))
 
 	words := extractWords(text)
@@ -64,6 +65,7 @@ func extractWords(text string) []string {
 		}
 	}
 	for _, r := range text {
+		// TODO:// considers only letter and \ and -, not numbers
 		if unicode.IsLetter(r) || r == '\'' || r == '-' {
 			cur.WriteRune(r)
 		} else {

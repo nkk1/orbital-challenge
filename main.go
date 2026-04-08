@@ -21,10 +21,11 @@ func main() {
 	}
 
 	svc := usage.NewService(usage.NewClient())
+
+	// apiServer is implementation of generated openapi Server
 	apiServer := api.NewServer(svc)
 
 	mux := http.NewServeMux()
-	// Bind the generated handler. If you regenerated with std-http-server,
 	// HandlerFromMux registers all paths from the spec onto the given mux.
 	api.HandlerFromMux(apiServer, mux)
 

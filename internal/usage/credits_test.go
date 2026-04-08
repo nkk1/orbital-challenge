@@ -10,7 +10,7 @@ func approxEq(a, b float64) bool {
 }
 
 func TestExtractWords(t *testing.T) {
-	got := extractWords("Hello, it's mother-in-law!")
+	got := extractWords("Hello,     it's mother-in-law!")
 	want := []string{"Hello", "it's", "mother-in-law"}
 	if len(got) != len(want) {
 		t.Fatalf("got %v, want %v", got, want)

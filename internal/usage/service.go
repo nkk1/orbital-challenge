@@ -6,8 +6,7 @@ import (
 	"time"
 )
 
-// Item is the domain representation of one usage entry. The transport layer
-// (server/api) is responsible for converting this into the OpenAPI shape.
+// represents each raw message in https://owpublic.blob.core.windows.net/tech-task/messages/current-period
 type Item struct {
 	MessageID  int64
 	Timestamp  time.Time
@@ -15,8 +14,7 @@ type Item struct {
 	Credits    float64
 }
 
-// upstream is the subset of *Client behaviour the service depends on. Defining
-// it as an interface keeps the service testable with a fake.
+// mainly for mocking during unit-testing
 type upstream interface {
 	FetchMessages(ctx context.Context) ([]Message, error)
 	FetchReport(ctx context.Context, id int64) (*Report, bool, error)
@@ -24,11 +22,11 @@ type upstream interface {
 
 // Service computes usage for the current billing period.
 type Service struct {
+	// client to access the mock Oribital API endpoints
 	client         upstream
 	reportFetchers int // max concurrent report fetches
 }
 
-// NewService wires the service to the given client.
 func NewService(client upstream) *Service {
 	return &Service{
 		client:         client,
@@ -36,7 +34,7 @@ func NewService(client upstream) *Service {
 	}
 }
 
-// CurrentPeriod returns the usage items for the current billing period.
+// CurrentPeriod fetch messages from Orbital API endpoints and convert them into 'Item's object
 func (s *Service) CurrentPeriod(ctx context.Context) ([]Item, error) {
 	messages, err := s.client.FetchMessages(ctx)
 	if err != nil {
@@ -48,7 +46,6 @@ func (s *Service) CurrentPeriod(ctx context.Context) ([]Item, error) {
 	sem := make(chan struct{}, s.reportFetchers)
 
 	for i, msg := range messages {
-		i, msg := i, msg
 		items[i] = Item{
 			MessageID: msg.ID,
 			Timestamp: msg.Timestamp,
@@ -60,20 +57,20 @@ func (s *Service) CurrentPeriod(ctx context.Context) ([]Item, error) {
 		}
 
 		wg.Add(1)
-		go func() {
+		go func(i int) {
 			defer wg.Done()
 			sem <- struct{}{}
 			defer func() { <-sem }()
 
-			report, found, err := s.client.FetchReport(ctx, *msg.ReportID)
+			report, found, err := s.client.FetchReport(ctx, *messages[i].ReportID)
 			if err == nil && found {
 				items[i].ReportName = report.Name
 				items[i].Credits = report.CreditCost
 				return
 			}
 			// 404 or transient error → fall back to text-based calculation.
-			items[i].Credits = CalculateTextCredits(msg.Text)
-		}()
+			items[i].Credits = CalculateTextCredits(messages[i].Text)
+		}(i)
 	}
 	wg.Wait()
 

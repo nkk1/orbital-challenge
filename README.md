@@ -9,6 +9,12 @@ orbital challenge
 make run 
 ```
 
+# Assumptions
+* Considering only characters (also \ and '), not considering letters and other characters for credit consumption
+* 0.05 for each character, includes space, numbers, special-chars
+
+# Test cases 
+
 * test 
 ```
 curl -s http://localhost:8080/usage | jq .
